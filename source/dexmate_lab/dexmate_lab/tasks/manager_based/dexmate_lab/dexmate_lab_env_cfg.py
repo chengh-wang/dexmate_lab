@@ -228,7 +228,7 @@ class EventCfg:
         mode="reset",
         params={
             "asset_cfg": SceneEntityCfg("robot", joint_names=["R_arm_j[1-7]"]),
-            "position_range": [-0.25, 0.25],
+            "position_range": [-50, 50],
             "velocity_range": [0.0, 0.0],
         },
     )

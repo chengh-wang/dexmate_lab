@@ -211,7 +211,7 @@ class EventCfg:
         params={
             "pose_range": {
                 "x": [0.0, 0.25],   # Randomize on table surface
-                "y": [-0.3, 0.1],
+                "y": [-0.2, 0.15],
                 "z": [0.15, 0.35],    # Small height above table (relative)
                 "roll": [0, 0.],
                 "pitch": [-0., 0.],
@@ -336,14 +336,14 @@ class RewardsCfg:
     # Grasping reward (based on contacts)
     good_grasp = RewTerm(
         func=mdp.contacts,
-        weight=1,
-        params={"threshold": 1.0},
+        weight=1.0,
+        params={"threshold": 1.0, "binary_contact": False},
     )
 
     # Lifting reward
     position_tracking = RewTerm(
         func=mdp.position_command_error_tanh,
-        weight=2.0,
+        weight=4.0,
         params={
             "asset_cfg": SceneEntityCfg("robot"),
             "std": 0.2,
@@ -368,7 +368,7 @@ class RewardsCfg:
     # Termination penalty
     early_termination = RewTerm(
         func=mdp.is_terminated_term, 
-        weight=-1, 
+        weight=-0.5, 
         params={"term_keys": ["object_out_of_bound"]}
     )
 

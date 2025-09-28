@@ -46,7 +46,7 @@ def object_ee_distance(
     return 1 - torch.tanh(object_ee_distance / std)
 
 
-def contacts(env: ManagerBasedRLEnv, threshold: float) -> torch.Tensor:
+def contacts(env: ManagerBasedRLEnv, threshold: float, binary_contact: bool = True) -> torch.Tensor:
     """Check if grasp contacts are good (thumb + at least one other finger)."""
     
     # Get contact sensors for Vega fingertips
@@ -69,16 +69,34 @@ def contacts(env: ManagerBasedRLEnv, threshold: float) -> torch.Tensor:
     mf_contact_mag = torch.norm(mf_contact, dim=-1)
     rf_contact_mag = torch.norm(rf_contact, dim=-1)
     lf_contact_mag = torch.norm(lf_contact, dim=-1)
-    
-    # Good grasp: thumb + at least one other finger
-    good_contact = (thumb_contact_mag > threshold) & (
-        (ff_contact_mag > threshold) | 
-        (mf_contact_mag > threshold) | 
-        (rf_contact_mag > threshold) |
-        (lf_contact_mag > threshold)
-    )
-    
-    return good_contact
+
+
+    thumb_in_contact = thumb_contact_mag > threshold
+    ff_in_contact = ff_contact_mag > threshold
+    mf_in_contact = mf_contact_mag > threshold
+    rf_in_contact = rf_contact_mag > threshold
+    lf_in_contact = lf_contact_mag > threshold
+
+
+    if binary_contact:
+        good_contact = thumb_in_contact & (
+            ff_in_contact | 
+            mf_in_contact | 
+            rf_in_contact |
+            lf_in_contact
+        )
+        return good_contact
+    else:
+        num_fingers_in_contact = (
+            ff_in_contact.float() + 
+            mf_in_contact.float() + 
+            rf_in_contact.float() + 
+            lf_in_contact.float()
+        )
+        normalized_finger_count = num_fingers_in_contact / 4.0
+        contact_reward = thumb_in_contact.float() * normalized_finger_count
+        return contact_reward
+
 
 def success_reward(
     env: ManagerBasedRLEnv,

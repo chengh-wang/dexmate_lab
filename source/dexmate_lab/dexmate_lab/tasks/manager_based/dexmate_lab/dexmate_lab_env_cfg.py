@@ -136,7 +136,7 @@ class ObservationsCfg:
         def __post_init__(self):
             self.enable_corruption = True
             self.concatenate_terms = True
-            self.history_length = 5
+            self.history_length = 10
 
     @configclass
     class ProprioObsCfg(ObsGroup):
@@ -160,7 +160,7 @@ class ObservationsCfg:
         def __post_init__(self):
             self.enable_corruption = True
             self.concatenate_terms = True
-            self.history_length = 5
+            self.history_length = 10
 
     @configclass
     class PerceptionObsCfg(ObsGroup):
@@ -177,7 +177,7 @@ class ObservationsCfg:
             self.concatenate_dim = 0
             self.concatenate_terms = True
             self.flatten_history_dim = True
-            self.history_length = 5
+            self.history_length = 10
 
     # observation groups
     policy: PolicyCfg = PolicyCfg()
@@ -210,12 +210,12 @@ class EventCfg:
         mode="reset",
         params={
             "pose_range": {
-                "x": [0.0, 0.35],   # Randomize on table surface
+                "x": [0.0, 0.25],   # Randomize on table surface
                 "y": [-0.2, 0.2],
                 "z": [0.15, 0.35],    # Small height above table (relative)
-                "roll": [-0.2, 0.2],
-                "pitch": [-0.2, 0.2],
-                "yaw": [-3.14, 3.14],
+                "roll": [0, 0.],
+                "pitch": [-0., 0.],
+                "yaw": [0., 0.],
             },
             "velocity_range": {"x": [0.0, 0.0], "y": [0.0, 0.0], "z": [0.0, 0.0]},
             "asset_cfg": SceneEntityCfg("object"),
@@ -228,7 +228,7 @@ class EventCfg:
         mode="reset",
         params={
             "asset_cfg": SceneEntityCfg("robot", joint_names=["R_arm_j[1-7]"]),
-            "position_range": [-50, 50],
+            "position_range": [0, 0],
             "velocity_range": [0.0, 0.0],
         },
     )
@@ -322,7 +322,7 @@ class RewardsCfg:
         params={
             "std": 0.4, 
             "asset_cfg": SceneEntityCfg("robot", body_names=[
-                "R_arm_l7",  # Wrist/end-effector
+                # "R_arm_l7",  # Wrist/end-effector
                 "R_ff_l2", 
                 "R_mf_l2",
                 "R_rf_l2", 
@@ -336,14 +336,14 @@ class RewardsCfg:
     # Grasping reward (based on contacts)
     good_grasp = RewTerm(
         func=mdp.contacts,
-        weight=2.0,
+        weight=1,
         params={"threshold": 1.0},
     )
 
     # Lifting reward
     position_tracking = RewTerm(
         func=mdp.position_command_error_tanh,
-        weight=3.0,
+        weight=2.0,
         params={
             "asset_cfg": SceneEntityCfg("robot"),
             "std": 0.2,

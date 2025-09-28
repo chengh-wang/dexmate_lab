@@ -211,7 +211,7 @@ class EventCfg:
         params={
             "pose_range": {
                 "x": [0.0, 0.25],   # Randomize on table surface
-                "y": [-0.2, 0.2],
+                "y": [-0.3, 0.1],
                 "z": [0.15, 0.35],    # Small height above table (relative)
                 "roll": [0, 0.],
                 "pitch": [-0., 0.],

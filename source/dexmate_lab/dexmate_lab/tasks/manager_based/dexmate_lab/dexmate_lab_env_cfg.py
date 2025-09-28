@@ -368,7 +368,7 @@ class RewardsCfg:
     # Termination penalty
     early_termination = RewTerm(
         func=mdp.is_terminated_term, 
-        weight=-0.5, 
+        weight=-0.25, 
         params={"term_keys": ["object_out_of_bound"]}
     )
 

@@ -87,12 +87,14 @@ def contacts(env: ManagerBasedRLEnv, threshold: float, binary_contact: bool = Tr
         )
         return good_contact
     else:
+        
         num_fingers_in_contact = (
             ff_in_contact.float() + 
             mf_in_contact.float() + 
             rf_in_contact.float() + 
             lf_in_contact.float()
         )
+        
         contact_reward = thumb_in_contact.float() * num_fingers_in_contact
         return contact_reward
 

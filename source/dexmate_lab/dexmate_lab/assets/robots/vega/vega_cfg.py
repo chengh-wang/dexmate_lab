@@ -31,12 +31,12 @@ VEGA_CFG = ArticulationCfg(
         rot=(1.0, 0.0, 0.0, 0.0),
         joint_pos={
             # Initialize right arm in pre-grasp position
-            "R_arm_j1": 0.0,
-            "R_arm_j2": 0.0,  # Slightly raised
-            "R_arm_j3": 0.0,
-            "R_arm_j4": 0.0,  # Elbow bent
+            "R_arm_j1": 0.523,
+            "R_arm_j2": -0.349,  # Slightly raised
+            "R_arm_j3": -1.57,
+            "R_arm_j4": -1.04,  # Elbow bent
             "R_arm_j5": 0.0,
-            "R_arm_j6": 0.5,
+            "R_arm_j6": 0.0,
             "R_arm_j7": 0.0,
             
             # Right hand fingers open (only j1 joints, j2 will follow via mimic)

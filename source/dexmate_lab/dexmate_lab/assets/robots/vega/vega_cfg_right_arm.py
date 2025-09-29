@@ -70,9 +70,9 @@ VEGA_RIGHT_ARM_CFG = ArticulationCfg(
                 "R_arm_j[5-7]": 25.0,   # Wrist joints
             },
             stiffness={
-                "R_arm_j[1-2]": 500.0,
-                "R_arm_j[3-4]": 500.0,
-                "R_arm_j[5-7]": 500.0,
+                "R_arm_j[1-2]": 300.0,
+                "R_arm_j[3-4]": 200.0,
+                "R_arm_j[5-7]": 50.0,
             },
             damping={
                 "R_arm_j[1-2]": 40.0,
@@ -91,7 +91,7 @@ VEGA_RIGHT_ARM_CFG = ArticulationCfg(
                 "R_lf_j1",
             ],
             effort_limit=1.0,  # From URDF
-            stiffness=50.0,
+            stiffness=10.0,
             damping=0.5,
             friction=0.01,
         ),

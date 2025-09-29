@@ -336,7 +336,7 @@ class RewardsCfg:
     # Grasping reward (based on contacts)
     good_grasp = RewTerm(
         func=mdp.contacts,
-        weight=1.0,
+        weight=2.0,
         params={"threshold": 1.0, "binary_contact": False},
     )
 
@@ -366,11 +366,11 @@ class RewardsCfg:
     )
 
     # Termination penalty
-    early_termination = RewTerm(
-        func=mdp.is_terminated_term, 
-        weight=-0.25, 
-        params={"term_keys": ["object_out_of_bound"]}
-    )
+    # early_termination = RewTerm(
+    #     func=mdp.is_terminated_term, 
+    #     weight=-0.25, 
+    #     params={"term_keys": ["object_out_of_bound"]}
+    # )
 
 @configclass
 class TerminationsCfg:
@@ -383,7 +383,7 @@ class TerminationsCfg:
             "in_bound_range": {
                 "x": (-0.25, 0.75), 
                 "y": (-0.6, 0.6),  
-                "z": (0.0, 1.0)
+                "z": (0.0, 10.0)
             },
             "asset_cfg": SceneEntityCfg("object"),
         },

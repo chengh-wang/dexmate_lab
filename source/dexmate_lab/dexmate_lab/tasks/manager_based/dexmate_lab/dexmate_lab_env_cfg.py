@@ -27,7 +27,7 @@ from . import mdp
 ##
 
 from dexmate_lab.assets.robots.vega.vega_cfg import VEGA_CFG  # isort:skip
-
+from dexmate_lab.assets.robots.vega.vega_cfg_right_arm import VEGA_RIGHT_ARM_CFG  # isort:skip
 
 ##
 # Scene definition
@@ -39,13 +39,13 @@ class DexmateLabSceneCfg(InteractiveSceneCfg):
     """Configuration for a cart-pole scene."""
 
     # robot
-    robot: ArticulationCfg = VEGA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+    robot: ArticulationCfg = VEGA_RIGHT_ARM_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
     # object
     object: RigidObjectCfg = RigidObjectCfg(
         prim_path="{ENV_REGEX_NS}/Object",
         spawn=CuboidCfg(
-            size=(0.06, 0.06, 0.06),  # 6cm cube as required
+            size=(0.04, 0.04, 0.04),  # 6cm cube as required
             physics_material=RigidBodyMaterialCfg(
                 static_friction=0.7,
                 dynamic_friction=0.5,
@@ -136,7 +136,7 @@ class ObservationsCfg:
         def __post_init__(self):
             self.enable_corruption = True
             self.concatenate_terms = True
-            self.history_length = 10
+            self.history_length = 25
 
     @configclass
     class ProprioObsCfg(ObsGroup):
@@ -160,7 +160,7 @@ class ObservationsCfg:
         def __post_init__(self):
             self.enable_corruption = True
             self.concatenate_terms = True
-            self.history_length = 10
+            self.history_length = 25
 
     @configclass
     class PerceptionObsCfg(ObsGroup):
@@ -177,7 +177,7 @@ class ObservationsCfg:
             self.concatenate_dim = 0
             self.concatenate_terms = True
             self.flatten_history_dim = True
-            self.history_length = 10
+            self.history_length = 25
 
     # observation groups
     policy: PolicyCfg = PolicyCfg()
@@ -228,44 +228,44 @@ class EventCfg:
         mode="reset",
         params={
             "asset_cfg": SceneEntityCfg("robot", joint_names=["R_arm_j[1-7]"]),
-            "position_range": [0, 0],
+            "position_range": [-10, 10],
             "velocity_range": [0.0, 0.0],
         },
     )
 
     # Physics randomization
-    robot_physics_material = EventTerm(
-        func=mdp.randomize_rigid_body_material,
-        mode="startup",
-        params={
-            "asset_cfg": SceneEntityCfg("robot", body_names="R_.*"),
-            "static_friction_range": [0.5, 1.0],
-            "dynamic_friction_range": [0.5, 1.0],
-            "restitution_range": [0.0, 0.0],
-            "num_buckets": 250,
-        },
-    )
+    # robot_physics_material = EventTerm(
+    #     func=mdp.randomize_rigid_body_material,
+    #     mode="startup",
+    #     params={
+    #         "asset_cfg": SceneEntityCfg("robot", body_names="R_.*"),
+    #         "static_friction_range": [0.5, 1.0],
+    #         "dynamic_friction_range": [0.5, 1.0],
+    #         "restitution_range": [0.0, 0.0],
+    #         "num_buckets": 250,
+    #     },
+    # )
 
-    object_physics_material = EventTerm(
-        func=mdp.randomize_rigid_body_material,
-        mode="startup",
-        params={
-            "asset_cfg": SceneEntityCfg("object"),
-            "static_friction_range": [0.5, 1.0],
-            "dynamic_friction_range": [0.5, 1.0],
-            "restitution_range": [0.0, 0.0],
-            "num_buckets": 250,
-        },
-    )
+    # object_physics_material = EventTerm(
+    #     func=mdp.randomize_rigid_body_material,
+    #     mode="startup",
+    #     params={
+    #         "asset_cfg": SceneEntityCfg("object"),
+    #         "static_friction_range": [0.5, 1.0],
+    #         "dynamic_friction_range": [0.5, 1.0],
+    #         "restitution_range": [0.0, 0.0],
+    #         "num_buckets": 250,
+    #     },
+    # )
 
-    variable_gravity = EventTerm(
-        func=mdp.randomize_physics_scene_gravity,
-        mode="reset",
-        params={
-            "gravity_distribution_params": ([0.0, 0.0, 0.0], [0.0, 0.0, 0.0]),
-            "operation": "abs",
-        },
-    )
+    # variable_gravity = EventTerm(
+    #     func=mdp.randomize_physics_scene_gravity,
+    #     mode="reset",
+    #     params={
+    #         "gravity_distribution_params": ([0.0, 0.0, 0.0], [0.0, 0.0, 0.0]),
+    #         "operation": "abs",
+    #     },
+    # )
 
 @configclass
 class CurriculumCfg:
@@ -274,18 +274,18 @@ class CurriculumCfg:
         func=mdp.DifficultyScheduler, params={"init_difficulty": 0, "min_difficulty": 0, "max_difficulty": 10}
     )
 
-    gravity_adr = CurrTerm(
-        func=mdp.modify_term_cfg,
-        params={
-            "address": "events.variable_gravity.params.gravity_distribution_params",
-            "modify_fn": mdp.initial_final_interpolate_fn,
-            "modify_params": {
-                "initial_value": ((0.0, 0.0, 0.0), (0.0, 0.0, 0.0)),
-                "final_value": ((0.0, 0.0, -9.81), (0.0, 0.0, -9.81)),
-                "difficulty_term_str": "adr",
-            },
-        },
-    )
+    # gravity_adr = CurrTerm(
+    #     func=mdp.modify_term_cfg,
+    #     params={
+    #         "address": "events.variable_gravity.params.gravity_distribution_params",
+    #         "modify_fn": mdp.initial_final_interpolate_fn,
+    #         "modify_params": {
+    #             "initial_value": ((0.0, 0.0, -9.81), (0.0, 0.0, -9.81)),
+    #             "final_value": ((0.0, 0.0, -9.81), (0.0, 0.0, -9.81)),
+    #             "difficulty_term_str": "adr",
+    #         },
+    #     },
+    # )
 
 
 @configclass
@@ -299,7 +299,7 @@ class CommandsCfg:
         ranges=mdp.ObjectUniformPoseCommandCfg.Ranges(
             pos_x=(0.2, 0.3),   # Reachable x range
             pos_y=(-0.1, 0.1),  # Reachable y range  
-            pos_z=(0.25, 0.5),  # Above table height
+            pos_z=(0.4, 0.5),  # Above table height
             roll=(0.0, 0.0),    # No rotation for simple lifting
             pitch=(0.0, 0.0),
             yaw=(0.0, 0.0),
@@ -330,20 +330,20 @@ class RewardsCfg:
                 "R_th_l2"
             ])
         }, 
-        weight=1.0
+        weight=2.0
     )
 
     # Grasping reward (based on contacts)
     good_grasp = RewTerm(
         func=mdp.contacts,
-        weight=2.0,
-        params={"threshold": 1.0, "binary_contact": False},
+        weight=1.5,
+        params={"threshold": 0.5, "binary_contact": False},
     )
 
     # Lifting reward
     position_tracking = RewTerm(
         func=mdp.position_command_error_tanh,
-        weight=4.0,
+        weight=6.0,
         params={
             "asset_cfg": SceneEntityCfg("robot"),
             "std": 0.2,
@@ -366,23 +366,23 @@ class RewardsCfg:
     )
 
     # Termination penalty
-    # early_termination = RewTerm(
-    #     func=mdp.is_terminated_term, 
-    #     weight=-0.25, 
-    #     params={"term_keys": ["object_out_of_bound"]}
-    # )
+    early_termination = RewTerm(
+        func=mdp.is_terminated_term, 
+        weight=-0.05, 
+        params={"term_keys": ["object_out_of_bound"]}
+    )
 
 @configclass
 class TerminationsCfg:
     """Termination terms for the MDP."""
 
-    time_out = DoneTerm(func=mdp.time_out, time_out=False)
+    time_out = DoneTerm(func=mdp.time_out, time_out=True)
     object_out_of_bound = DoneTerm(
         func=mdp.out_of_bound,
         params={
             "in_bound_range": {
-                "x": (-0.25, 0.75), 
-                "y": (-0.6, 0.6),  
+                "x": (-0.6, 1.0), 
+                "y": (-0.7, 0.7),  
                 "z": (0.0, 10.0)
             },
             "asset_cfg": SceneEntityCfg("object"),

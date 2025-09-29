@@ -1,13 +1,13 @@
-# source/dexmate_lab/dexmate_lab/assets/robots/vega/vega_cfg.py
+# source/dexmate_lab/dexmate_lab/assets/robots/vega/vega_cfg_right_arm.py
 
 import isaaclab.sim as sim_utils
 from isaaclab.actuators.actuator_cfg import ImplicitActuatorCfg
 from isaaclab.assets.articulation import ArticulationCfg
 
-VEGA_CFG = ArticulationCfg(
+VEGA_RIGHT_ARM_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
         # usd_path="source/dexmate_lab/dexmate_lab/assets/robots/vega/vega_upper_body_v1.usd",
-        usd_path="/home/chengh-wang/Documents/git/dexmate_lab/source/dexmate_lab/dexmate_lab/assets/robots/vega/vega_upper_body_v1.usd",
+        usd_path="/home/chengh-wang/Documents/git/dexmate_lab/source/dexmate_lab/dexmate_lab/assets/robots/vega/vega_upper_body_right_arm_v1.usd",
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
@@ -55,27 +55,10 @@ VEGA_CFG = ArticulationCfg(
             "R_rf_j1": 0.279,  # Ring finger
             "R_lf_j1": 0.279,  # Little finger
             
-
-            "L_arm_j1": -3.14,
-            "L_arm_j2": 0.0,
-            "L_arm_j3": 0.0,
-            "L_arm_j4": 0.0,
-            "L_arm_j5": 0.0,
-            "L_arm_j6": 0.0,
-            "L_arm_j7": 0.0,
-            
-            # Left hand joints
-            "L_th_j0": 0.0,
-            "L_th_j1": 0.0,
-            "L_ff_j1": 0.0,
-            "L_mf_j1": 0.0,
-            "L_rf_j1": 0.0,
-            "L_lf_j1": 0.0,
-            
             # Head in neutral
-            "head_j1": 0.0,
-            "head_j2": 0.0,
-            "head_j3": 0.0,
+            # "head_j1": 0.0,
+            # "head_j2": 0.0,
+            # "head_j3": 0.0,
         },
     ),
     actuators={

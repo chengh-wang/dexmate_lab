@@ -3,7 +3,7 @@
 
 ## Installation
 
-- Install Isaac Lab by following the [installation guide](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/index.html).
+- Install Isaac Lab by following the [installation guide](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/index.html), the version of isaacsim is 5.0.0 and the version of isaaclab is 2.3.0.
 
 
 - Using a python interpreter that has Isaac Lab installed, install the library in editable mode using:

@@ -6,8 +6,8 @@ from isaaclab.assets.articulation import ArticulationCfg
 
 VEGA_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        # usd_path="source/dexmate_lab/dexmate_lab/assets/robots/vega/vega_upper_body_v1.usd",
-        usd_path="/home/chengh-wang/Documents/git/dexmate_lab/source/dexmate_lab/dexmate_lab/assets/robots/vega/vega_upper_body_v1.usd",
+        usd_path="source/dexmate_lab/dexmate_lab/assets/robots/vega/vega_upper_body_v1.usd",
+        # usd_path="/home/chengh-wang/Documents/git/dexmate_lab/source/dexmate_lab/dexmate_lab/assets/robots/vega/vega_upper_body_v1.usd",
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,

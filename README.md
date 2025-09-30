@@ -1,135 +1,87 @@
-# Template for Isaac Lab Projects
+# Dexmate_lab
 
-## Overview
-
-This project/repository serves as a template for building projects or extensions based on Isaac Lab.
-It allows you to develop in an isolated environment, outside of the core Isaac Lab repository.
-
-**Key Features:**
-
-- `Isolation` Work outside the core Isaac Lab repository, ensuring that your development efforts remain self-contained.
-- `Flexibility` This template is set up to allow your code to be run as an extension in Omniverse.
-
-**Keywords:** extension, template, isaaclab
 
 ## Installation
 
 - Install Isaac Lab by following the [installation guide](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/index.html).
-  We recommend using the conda or uv installation as it simplifies calling Python scripts from the terminal.
 
-- Clone or copy this project/repository separately from the Isaac Lab installation (i.e. outside the `IsaacLab` directory):
 
 - Using a python interpreter that has Isaac Lab installed, install the library in editable mode using:
 
     ```bash
-    # use 'PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
     python -m pip install -e source/dexmate_lab
-
 - Verify that the extension is correctly installed by:
 
     - Listing the available tasks:
 
-        Note: It the task name changes, it may be necessary to update the search pattern `"Template-"`
-        (in the `scripts/list_envs.py` file) so that it can be listed.
-
         ```bash
-        # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
         python scripts/list_envs.py
         ```
 
-    - Running a task:
+    - Running a training:
 
         ```bash
-        # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-        python scripts/<RL_LIBRARY>/train.py --task=<TASK_NAME>
+        python scripts/rsl_rl/train.py --task Template-Dexmate-Lab-v0 --num_envs 512 --headless
         ```
 
-    - Running a task with dummy agents:
+    - Evaluate a trained policy
+        ```bash
+        python scripts/rsl_rl/play.py --task Template-Dexmate-Lab-v0 --num_envs 1 --load_run 2025-09-29_00-21-52
+        ```
+## Task Overview
 
-        These include dummy agents that output zero or random agents. They are useful to ensure that the environments are configured correctly.
+This environment train a cube lifting task using the Vega robot's right arm and hand to grasp and lift a 6cm cube (100g) to a target position.
 
-        - Zero-action agent
+### Actions
 
-            ```bash
-            # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-            python scripts/zero_agent.py --task=<TASK_NAME>
-            ```
-        - Random-action agent
+**Action Space:** 12-dimensional continuous control
+- **Right arm joints** (7 DoF): `R_arm_j1` through `R_arm_j7`
+- **Hand joints** (5 DoF): `R_th_j0`, `R_th_j1`, `R_ff_j1`, `R_mf_j1`, `R_rf_j1`, `R_lf_j1`
 
-            ```bash
-            # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-            python scripts/random_agent.py --task=<TASK_NAME>
-            ```
 
-### Set up IDE (Optional)
+### Observations
+**1. Policy Observations**
+- Object orientation (quaternion in robot base frame)
+- Target object pose command
+- Last action
 
-To setup the IDE, please follow these instructions:
+**2. Proprioception Observations**
+- Joint positions and velocities (12 joints)
+- Hand tip states (position, velocity, orientation of wrist + 5 fingertips)
+- Contact forces on all 5 fingertips (clipped to ±20N)
 
-- Run VSCode Tasks, by pressing `Ctrl+Shift+P`, selecting `Tasks: Run Task` and running the `setup_python_env` in the drop down menu.
-  When running this task, you will be prompted to add the absolute path to your Isaac Sim installation.
+**3. Perception Observations**
+- Object point cloud (64 points in robot base frame, clipped to ±2m)
 
-If everything executes correctly, it should create a file .python.env in the `.vscode` directory.
-The file contains the python paths to all the extensions provided by Isaac Sim and Omniverse.
-This helps in indexing all the python modules for intelligent suggestions while writing code.
+### Rewards
 
-### Setup as Omniverse Extension (Optional)
+The reward encourages successful grasping (through Reaching and Grasping) and lifting (through Lifting and Success), by changing “binary_contact” flag from grasping function, we can selecting between two finger grasp or full hand grasp:
 
-We provide an example UI extension that will load upon enabling your extension defined in `source/dexmate_lab/dexmate_lab/ui_extension_example.py`.
+| Component | Description |
+|-----------|-------------|
+| **Reaching** | Exponential reward for minimizing finger-to-object distance |
+| **Grasping** |  Binary reward for proper grasp (thumb + any finger contact > 0.5N) |
+| **Lifting** | osition tracking to target, gated by contact presence |
+| **Success** |  High reward when object reaches target position (within 0.1m) |
+| **Action penalty** | L2 penalty on actions |
+| **Action rate penalty** |  L2 penalty on action changes |
+| **Early termination** |  Penalty for dropping the object |
 
-To enable your extension, follow these steps:
+### Curriculum Learning
 
-1. **Add the search path of this project/repository** to the extension manager:
-    - Navigate to the extension manager using `Window` -> `Extensions`.
-    - Click on the **Hamburger Icon**, then go to `Settings`.
-    - In the `Extension Search Paths`, enter the absolute path to the `source` directory of this project/repository.
-    - If not already present, in the `Extension Search Paths`, enter the path that leads to Isaac Lab's extension directory directory (`IsaacLab/source`)
-    - Click on the **Hamburger Icon**, then click `Refresh`.
+- **Gravity curriculum:** Progressively introduces gravity as training advances
+  - Initial: No gravity (0 m/s²), the cube floating around the env.
+  - Final: Standard Earth gravity (-9.81 m/s²).
 
-2. **Search and enable your extension**:
-    - Find your extension under the `Third Party` category.
-    - Toggle it to enable your extension.
+### Termination Conditions
 
-## Code formatting
+- **Timeout:** 5 seconds 
+- **Out of bounds:** Object exits the workspace
 
-We have a pre-commit template to automatically format your code.
-To install pre-commit:
 
-```bash
-pip install pre-commit
-```
+### Environment Randomization
 
-Then you can run pre-commit with:
+- **Table height:** Randomized between 0.05-0.15m per episode
+- **Object spawn:** Random position on table surface (x: 0-0.25m, y: -0.2 to 0.15m)
+- **Target pose:** Random reachable position (x: 0.2-0.3m, y: -0.1 to 0.1m, z: 0.4-0.5m)
 
-```bash
-pre-commit run --all-files
-```
-
-## Troubleshooting
-
-### Pylance Missing Indexing of Extensions
-
-In some VsCode versions, the indexing of part of the extensions is missing.
-In this case, add the path to your extension in `.vscode/settings.json` under the key `"python.analysis.extraPaths"`.
-
-```json
-{
-    "python.analysis.extraPaths": [
-        "<path-to-ext-repo>/source/dexmate_lab"
-    ]
-}
-```
-
-### Pylance Crash
-
-If you encounter a crash in `pylance`, it is probable that too many files are indexed and you run out of memory.
-A possible solution is to exclude some of omniverse packages that are not used in your project.
-To do so, modify `.vscode/settings.json` and comment out packages under the key `"python.analysis.extraPaths"`
-Some examples of packages that can likely be excluded are:
-
-```json
-"<path-to-isaac-sim>/extscache/omni.anim.*"         // Animation packages
-"<path-to-isaac-sim>/extscache/omni.kit.*"          // Kit UI tools
-"<path-to-isaac-sim>/extscache/omni.graph.*"        // Graph UI tools
-"<path-to-isaac-sim>/extscache/omni.services.*"     // Services tools
-...
-```

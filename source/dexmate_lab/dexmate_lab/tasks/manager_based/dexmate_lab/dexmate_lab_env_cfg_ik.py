@@ -1,7 +1,3 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers
-# All rights reserved.
-# SPDX-License-Identifier: BSD-3-Clause
-
 from isaaclab.controllers.differential_ik_cfg import DifferentialIKControllerCfg
 from isaaclab.envs.mdp.actions import DifferentialInverseKinematicsActionCfg, BinaryJointPositionActionCfg
 from isaaclab.utils import configclass
@@ -12,11 +8,10 @@ from .dexmate_lab_env_cfg import DexmateLabEnvCfg
 class ActionsIKCfg:
     """SE(3) IK control for teleoperation."""
     
-    # Differential IK for right arm
     arm_action = DifferentialInverseKinematicsActionCfg(
         asset_name="robot",
-        joint_names=["R_arm_j.*"],     # keep all arm joints
-        body_name="R_th_l0",          # ← was R_arm_l6; use your palm/tcp link name
+        joint_names=["R_arm_j.*"],    
+        body_name="R_th_l0",          
         controller=DifferentialIKControllerCfg(
             command_type="pose",
             use_relative_mode=True,
